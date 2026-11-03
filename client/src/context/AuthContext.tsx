@@ -17,6 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
   register: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
 }
@@ -150,6 +151,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithGoogle = async () => {
+    setIsLoading(true);
+    try {
+      const isLive = SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY !== 'dev-anon-key';
+      if (isLive) {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/dashboard`
+          }
+        });
+        if (error) return { error: error.message };
+        return { error: null };
+      }
+
+      // Standalone development mock Google sign-in
+      const mockUser: any = {
+        id: '00000000-0000-0000-0000-000000000001',
+        email: 'google.dev@example.com',
+        user_metadata: { full_name: 'Google User', avatar_url: 'https://lh3.googleusercontent.com/a/default' }
+      };
+      setUser(mockUser);
+      localStorage.setItem('auth_token', 'dev-token');
+      localStorage.setItem('auth_user', JSON.stringify(mockUser));
+      return { error: null };
+    } catch (err: any) {
+      return { error: err.message || 'Google sign-in failed' };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       const isLive = SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY !== 'dev-anon-key';
@@ -187,6 +220,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
+        signInWithGoogle,
         logout,
         resetPassword
       }}
