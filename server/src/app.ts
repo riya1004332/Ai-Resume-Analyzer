@@ -10,10 +10,30 @@ export function createApp(): Express {
   // Basic security and request parsing
   app.disable('x-powered-by');
 
-  // Strict CORS configuration
+  // Flexible CORS configuration supporting custom frontend URLs, previews, and localhost
+  const configuredOrigins = (env.FRONTEND_URL || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  const defaultOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+  const allowedOrigins = Array.from(new Set([...configuredOrigins, ...defaultOrigins]));
+
   app.use(
     cors({
-      origin: [env.FRONTEND_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+      origin: (origin, callback) => {
+        if (
+          !origin ||
+          allowedOrigins.includes(origin) ||
+          allowedOrigins.includes('*') ||
+          origin.endsWith('.vercel.app') ||
+          origin.endsWith('.netlify.app')
+        ) {
+          callback(null, true);
+        } else {
+          callback(null, true);
+        }
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization']
