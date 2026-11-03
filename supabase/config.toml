@@ -1,0 +1,18 @@
+project_id = "ai-resume-analyzer"
+
+[api]
+port = 54321
+
+[db]
+port = 54322
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5000", "http://localhost:5173/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+
