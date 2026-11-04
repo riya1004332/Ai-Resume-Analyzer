@@ -43,8 +43,8 @@ export function createApp(): Express {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Health check endpoint
-  app.get('/health', (req, res) => {
+  // Health check endpoint (both /health and /api/health)
+  app.get(['/health', '/api/health'], (req, res) => {
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -53,8 +53,8 @@ export function createApp(): Express {
     });
   });
 
-  // Mount API v1 router
-  app.use('/api/v1', apiRouter);
+  // Mount API router across /api/v1, /v1, and /api
+  app.use(['/api/v1', '/v1', '/api'], apiRouter);
 
   // 404 handler for undefined API routes
   app.use((req, res) => {
