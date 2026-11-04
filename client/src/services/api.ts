@@ -85,7 +85,16 @@ class ApiClient {
       body: formData
     });
 
-    const data: ApiResponse<Resume> = await response.json();
+    let data: ApiResponse<Resume>;
+    try {
+      data = await response.json();
+    } catch {
+      data = {
+        success: false,
+        message: `Upload failed: server returned status ${response.status} (${response.statusText})`
+      };
+    }
+
     if (!response.ok || !data.success) {
       throw new Error(data.message || 'Failed to upload resume file.');
     }

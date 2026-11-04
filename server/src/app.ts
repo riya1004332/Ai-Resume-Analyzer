@@ -43,10 +43,11 @@ export function createApp(): Express {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Health check endpoint (both /health and /api/health)
-  app.get(['/health', '/api/health'], (req, res) => {
+  // Health check endpoint (support /, /health, /api, and /api/health)
+  app.get(['/', '/health', '/api', '/api/health'], (req, res) => {
     res.json({
       status: 'healthy',
+      name: 'AI Resume Analyzer API',
       timestamp: new Date().toISOString(),
       model: env.GEMINI_MODEL,
       env: env.NODE_ENV
