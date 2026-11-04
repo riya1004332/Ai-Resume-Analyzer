@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter shared build && pnpm --filter server build && pnpm --filter client build",
   "outputDirectory": "client/dist",
   "rewrites": [
